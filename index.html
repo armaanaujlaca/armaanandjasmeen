@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#FF3D8B" />
+<title>The Private Collection</title>
+<meta name="description" content="A private viewing. One visitor." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Grandstander:wght@400..700&family=Sniglet:wght@800&display=swap" rel="stylesheet" />
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   THE COLLECTION — design tokens
+   Bright risograph-sticker palette: bubblegum pink lead, with yellow, mint
+   and periwinkle as supporting inks. Chunky plum outlines, hard offset
+   shadows, soft rounded shapes, slightly wonky rotations. Cute on purpose.
+   ══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --cream:#FFF6F1;        /* paper                     */
+  --pink:#FF3D8B;         /* the lead ink              */
+  --pink-2:#FF7FB2;
+  --pink-soft:#FFDCEA;
+  --yellow:#FFC93C;
+  --mint:#4FD3B8;
+  --blue:#7C6BFF;
+  --plum:#2E0F28;         /* all text + all outlines   */
+  --plum-soft:#7A5570;
+  --night:#150A13;        /* lights off                */
+
+  --display:"Sniglet","Fredoka",system-ui,sans-serif;   /* headings, numbers, buttons */
+  --text:"Grandstander",system-ui,-apple-system,sans-serif; /* everything you read */
+  --hand:"Caveat","Bradley Hand",cursive;
+
+  --s1:4px; --s2:8px; --s3:14px; --s4:22px; --s5:34px; --s6:54px; --s7:86px;
+
+  --r:18px; --r-lg:28px; --r-pill:999px;
+  --line:3px solid var(--plum);
+  --pop:5px 5px 0 var(--plum);
+  --pop-sm:3px 3px 0 var(--plum);
+
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --bounce:cubic-bezier(.34,1.42,.5,1);
+  --slow:1100ms; --mid:620ms; --fast:280ms;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--night);color:var(--plum);
+  font-family:var(--text);font-weight:400;line-height:1.6;
+  overflow:hidden;overscroll-behavior:none;-webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;background:none;border:0;margin:0;padding:0;cursor:pointer}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:6px}
+img{display:block;max-width:100%}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* the little info card, reused wherever something needs facts attached */
+.label{font-size:13px;line-height:1.45;margin:0}
+.label dt{font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--pink);margin:0}
+.label dd{margin:0 0 var(--s2);color:var(--plum-soft);font-weight:600}
+.label dd:last-child{margin-bottom:0}
+.acc{display:inline-block;font-weight:800;font-size:11px;color:#fff;background:var(--pink);
+  padding:3px 9px;border-radius:var(--r-pill)}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   0 · LIGHTS OFF — a bulb drops in on a cord
+   ══════════════════════════════════════════════════════════════════════════ */
+#door{
+  position:fixed;inset:0;z-index:90;--fill:0;
+  display:flex;flex-direction:column;align-items:center;
+  background:var(--night);
+  transition:background 620ms var(--ease),opacity 620ms var(--ease),visibility 620ms;
+}
+#door.is-open{opacity:0;visibility:hidden;pointer-events:none}
+#door.on{background:var(--cream)}
+#door::before{ /* the pool of light the bulb throws, grows as you hold */
+  content:"";position:absolute;left:50%;top:0;width:170vmax;height:170vmax;
+  transform:translate(-50%,-34%) scale(calc(.34 + var(--fill) * .8));
+  background:radial-gradient(circle,rgba(255,201,60,.30),rgba(255,127,178,.13) 34%,transparent 62%);
+  opacity:calc(.34 + var(--fill) * .66);pointer-events:none;will-change:transform,opacity;
+  transition:transform 120ms linear,opacity 120ms linear;
+}
+#door.on::before{opacity:0;transition:opacity 500ms var(--ease)}
+
+.hang{position:relative;z-index:3;width:96px;display:flex;flex-direction:column;align-items:center;
+  animation:dropin 1250ms var(--bounce) both}
+@keyframes dropin{from{transform:translateY(-108%)}to{transform:translateY(0)}}
+.swing{transform-origin:50% 0;display:flex;flex-direction:column;align-items:center;
+  animation:swing 4.2s ease-in-out 1400ms infinite}
+@keyframes swing{0%,100%{transform:rotate(-2.6deg)}50%{transform:rotate(2.6deg)}}
+.cord{width:3px;height:clamp(54px,13vh,124px);
+  background:linear-gradient(180deg,#6B4A62,#3A2035);border-radius:2px}
+#door.on .swing{animation:none;transform:translateY(-30px);transition:transform 900ms var(--ease)}
+
+.bulb{position:relative;display:block;touch-action:none;-webkit-user-select:none;user-select:none;
+  transition:transform var(--fast) var(--bounce)}
+.bulb:hover{transform:translateY(3px)}
+.bulb svg{display:block;width:86px;height:auto;overflow:visible}
+.glass-body{fill:rgba(255,255,255,calc(.06 + var(--fill) * .5));
+  stroke:rgba(255,241,214,calc(.45 + var(--fill) * .55));stroke-width:3;stroke-linejoin:round}
+.filament{fill:none;stroke:#FFC93C;stroke-width:3.4;stroke-linecap:round;
+  opacity:calc(.18 + var(--fill) * .82);
+  filter:drop-shadow(0 0 calc(2px + var(--fill) * 16px) rgba(255,201,60,calc(.3 + var(--fill) * .7)))}
+.cap{fill:#8B6A82;stroke:#3A2035;stroke-width:2}
+.halo{position:absolute;left:50%;top:38%;width:300px;height:300px;margin:-150px 0 0 -150px;
+  border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,201,60,.55),rgba(255,127,178,.22) 40%,transparent 66%);
+  opacity:var(--fill);transform:scale(calc(.5 + var(--fill) * .7));transition:transform 120ms linear}
+#door.on .filament{opacity:1;stroke:#FFB800;filter:drop-shadow(0 0 22px rgba(255,201,60,.95))}
+#door.on .glass-body{fill:rgba(255,255,255,.85);stroke:#FFC93C}
+#door.on .cap{fill:#C89BB8}
+
+.plaque{position:relative;z-index:2;text-align:center;margin:clamp(22px,5vh,52px) 0 auto;
+  padding:0 var(--s5) var(--s6);max-width:min(600px,88vw);
+  transition:opacity 420ms var(--ease)}
+#door.on .plaque{opacity:0}
+.plaque .etch{font-size:13px;font-weight:700;color:var(--pink-2);margin:0}
+.plaque h1{font-family:var(--display);font-weight:600;font-size:clamp(36px,9vw,76px);
+  line-height:1.02;margin:var(--s3) 0;color:#FFF3E6;letter-spacing:-.01em}
+.plaque h1 em{font-style:normal;color:var(--yellow);display:inline-block;transform:rotate(-3deg)}
+.plaque .sub{font-size:15px;color:#C9A9BE;max-width:36ch;margin:0 auto var(--s5);font-weight:600}
+.plaque .hold{font-family:var(--display);font-size:17px;font-weight:500;color:#FFF3E6;
+  display:inline-block;padding:10px 20px;border-radius:var(--r-pill);
+  background:rgba(255,255,255,.08);border:2px solid rgba(255,201,60,.42)}
+.patience{margin-top:var(--s4);font-family:var(--hand);font-size:21px;color:var(--pink-2);
+  opacity:0;transition:opacity 1500ms var(--ease)}
+.patience.show{opacity:1}
+
+#bloom{position:fixed;inset:0;z-index:95;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at 50% 22%,#fff,rgba(255,201,60,.8) 26%,rgba(255,127,178,.4) 46%,transparent 70%)}
+#bloom.fire{animation:bloom 1100ms var(--ease) forwards}
+@keyframes bloom{0%{opacity:0;transform:scale(.3)}18%{opacity:1}100%{opacity:0;transform:scale(2.6)}}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   1 · THE ROOMS — a bright walk, sideways
+   ══════════════════════════════════════════════════════════════════════════ */
+#gallery{
+  position:fixed;inset:0;z-index:10;display:flex;height:100dvh;
+  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
+  scrollbar-width:none;overscroll-behavior-x:contain;
+  opacity:0;transition:opacity 700ms var(--ease);
+}
+#gallery::-webkit-scrollbar{display:none}
+#gallery.lit{opacity:1}
+
+.room{
+  position:relative;flex:0 0 100%;width:100%;height:100dvh;
+  scroll-snap-align:center;scroll-snap-stop:always;
+  display:grid;place-items:center;overflow:hidden;
+  padding:calc(var(--s7) + env(safe-area-inset-top)) var(--s5) calc(var(--s6) + env(safe-area-inset-bottom));
+  --wash:var(--pink-soft);
+  background:
+    radial-gradient(120% 78% at 50% -6%, var(--wash), transparent 66%),
+    var(--cream);
+}
+.room[data-tint="a"]{--wash:#FFD9E8}
+.room[data-tint="b"]{--wash:#D6F6EE}
+.room[data-tint="c"]{--wash:#FFEFC2}
+.room[data-tint="d"]{--wash:#E4DEFF}
+.room[data-tint="e"]{--wash:#FFCBDF}
+.room::before{ /* heart wallpaper */
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.6;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Cg fill='%23FFC7DC'%3E%3Cpath transform='translate(14 30) scale(1.15) rotate(-13 8 8)' d='M8 14.3C.9 9.2.9 4.1 4.6 2.6 6.4 1.9 7.6 3.1 8 3.9c.4-.8 1.6-2 3.4-1.3 3.7 1.5 3.7 6.6-3.4 11.7z'/%3E%3Cpath transform='translate(96 14) scale(.8) rotate(15 8 8)' d='M8 14.3C.9 9.2.9 4.1 4.6 2.6 6.4 1.9 7.6 3.1 8 3.9c.4-.8 1.6-2 3.4-1.3 3.7 1.5 3.7 6.6-3.4 11.7z'/%3E%3Cpath transform='translate(58 92) scale(1.3) rotate(7 8 8)' d='M8 14.3C.9 9.2.9 4.1 4.6 2.6 6.4 1.9 7.6 3.1 8 3.9c.4-.8 1.6-2 3.4-1.3 3.7 1.5 3.7 6.6-3.4 11.7z'/%3E%3Cpath transform='translate(120 104) scale(.85) rotate(-20 8 8)' d='M8 14.3C.9 9.2.9 4.1 4.6 2.6 6.4 1.9 7.6 3.1 8 3.9c.4-.8 1.6-2 3.4-1.3 3.7 1.5 3.7 6.6-3.4 11.7z'/%3E%3Cpath transform='translate(8 116) scale(.72) rotate(22 8 8)' d='M8 14.3C.9 9.2.9 4.1 4.6 2.6 6.4 1.9 7.6 3.1 8 3.9c.4-.8 1.6-2 3.4-1.3 3.7 1.5 3.7 6.6-3.4 11.7z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:150px 150px;
+}
+.room::after{ /* skirting board */
+  content:"";position:absolute;left:0;right:0;bottom:0;height:38px;
+  background:repeating-linear-gradient(90deg,var(--pink-soft) 0 22px,#FFE9F2 22px 44px);
+  border-top:var(--line);pointer-events:none;
+}
+.room-inner{position:relative;z-index:2;width:100%;max-width:1120px}
+
+.room-head{display:flex;align-items:center;gap:var(--s3);margin-bottom:var(--s5)}
+.room-head .numeral{font-family:var(--display);font-weight:600;font-size:15px;color:#fff;
+  background:var(--plum);width:36px;height:36px;border-radius:var(--r-pill);
+  display:grid;place-items:center;flex:0 0 36px;transform:rotate(-6deg)}
+.room-head h2{font-family:var(--display);font-weight:600;font-size:clamp(24px,4.2vw,38px);
+  margin:0;color:var(--plum);letter-spacing:-.015em;line-height:1.1}
+
+/* ── the wall you read on the way in ───────────────────────────────────── */
+.walltext{max-width:46ch;background:#fff;border:var(--line);border-radius:var(--r-lg);
+  padding:clamp(20px,3vw,34px);box-shadow:var(--pop);transform:rotate(-.7deg)}
+.walltext p{font-size:clamp(15px,2.1vw,19px);line-height:1.7;margin:0 0 var(--s4);font-weight:500}
+.walltext p:last-of-type{margin-bottom:0}
+.walltext .drop::first-letter{font-family:var(--display);font-size:3.1em;line-height:.82;float:left;
+  padding:8px 12px 0 0;color:var(--pink)}
+.acq{margin-top:var(--s4);padding-top:var(--s4);border-top:2px dashed var(--pink-soft)}
+
+/* ── taped-up photos ───────────────────────────────────────────────────── */
+.wall{display:flex;gap:clamp(26px,5vw,74px);align-items:flex-start;justify-content:center;flex-wrap:wrap}
+.piece{display:block;text-align:left;max-width:min(320px,76vw);
+  transition:transform var(--mid) var(--bounce)}
+.piece:nth-child(odd){transform:rotate(-2.2deg)}
+.piece:nth-child(even){transform:rotate(1.8deg)}
+.piece:hover,.piece:focus-visible{transform:rotate(0) translateY(-8px) scale(1.02)}
+.frame{position:relative;background:#fff;border:var(--line);border-radius:var(--r);
+  padding:10px 10px 0;box-shadow:var(--pop)}
+.frame::before{ /* washi tape */
+  content:"";position:absolute;top:-13px;left:50%;width:78px;height:26px;margin-left:-39px;
+  background:repeating-linear-gradient(45deg,var(--yellow) 0 7px,#FFE08A 7px 14px);
+  border:2px solid var(--plum);border-radius:4px;transform:rotate(-3deg);
+}
+.frame .mat{border-radius:10px;overflow:hidden;background:var(--pink-soft)}
+.frame img,.frame .ph{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}
+.ph{display:grid;place-items:center;text-align:center;padding:var(--s4);font-size:12px;
+  font-weight:700;color:var(--plum-soft);line-height:1.6;
+  background:repeating-linear-gradient(45deg,#FFE9F2 0 11px,#FFF6F1 11px 22px)}
+.ph .num{font-family:var(--display);font-size:26px;color:var(--pink);display:block;margin-bottom:var(--s2)}
+.cap{padding:var(--s3) 10px 14px}
+.cap h3{font-family:var(--display);font-weight:600;font-size:19px;margin:0 0 4px;line-height:1.15}
+.cap .meta{font-size:12.5px;color:var(--plum-soft);font-weight:600;margin:0;display:flex;
+  align-items:center;gap:8px;flex-wrap:wrap}
+.cap .more{font-size:12px;font-weight:800;color:var(--pink);margin:8px 0 0;opacity:0;
+  transition:opacity var(--fast) var(--ease)}
+.piece:hover .cap .more,.piece:focus-visible .cap .more{opacity:1}
+
+/* ── the flip-tag wall ─────────────────────────────────────────────────── */
+.inv{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s3);perspective:900px;max-width:880px}
+.tag{position:relative;aspect-ratio:1/.72;transform-style:preserve-3d;
+  transition:transform 620ms var(--bounce)}
+.tag.flipped{transform:rotateY(180deg)}
+.tag .side{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  display:grid;place-items:center;padding:var(--s3);text-align:center;
+  border:var(--line);border-radius:var(--r);box-shadow:var(--pop-sm)}
+.tag .front{background:#fff}
+.tag .front span{font-family:var(--display);font-size:22px;color:var(--pink)}
+.tag:nth-child(3n) .front{background:#FFF1CC}
+.tag:nth-child(3n+1) .front{background:#E8FBF5}
+.tag .back{transform:rotateY(180deg);background:var(--pink);color:#fff;
+  font-size:clamp(11px,1.1vw,13.5px);line-height:1.35;font-weight:700}
+.tag:nth-child(4n) .back{background:var(--blue)}
+.tag:nth-child(4n+2) .back{background:var(--mint);color:var(--plum)}
+.inv-foot{margin-top:var(--s4);display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
+.counter{font-weight:800;font-size:13px;color:var(--plum);background:#fff;border:var(--line);
+  border-radius:var(--r-pill);padding:6px 14px;box-shadow:var(--pop-sm)}
+.inv-bonus{font-family:var(--hand);font-size:23px;color:var(--pink);opacity:0;
+  transition:opacity 700ms var(--ease)}
+.inv-bonus.show{opacity:1}
+
+/* ── the mending room ──────────────────────────────────────────────────── */
+.cons{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(26px,5vw,66px);align-items:center}
+.vessel{width:100%;max-width:380px;margin-inline:auto}
+.vessel svg{width:100%;height:auto;overflow:visible}
+.body-line{fill:url(#clay);stroke:var(--plum);stroke-width:3.4;stroke-linejoin:round}
+.mouth{fill:#F6D3E3;stroke:var(--plum);stroke-width:3.4}
+.mouth-in{fill:url(#cavity);stroke:var(--plum);stroke-width:2.2}
+.sheen{fill:none;stroke:#fff;stroke-width:11;stroke-linecap:round;opacity:.7}
+.bowl-shadow{fill:rgba(46,15,40,.11)}
+.fx{cursor:pointer}
+.fx.done{cursor:default}
+.fx:focus{outline:none}
+.fx:focus-visible{outline:none}
+.halo{fill:none;stroke:transparent;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;
+  transition:stroke 160ms var(--ease),stroke-width 160ms var(--ease)}
+.fx:hover .halo,.fx:focus-visible .halo{stroke:rgba(46,15,40,.16);stroke-width:16}
+.fx.done .halo{stroke:transparent !important;stroke-width:4 !important}
+.lip{fill:#FFFFFF;opacity:.75;transform:translate(.9px,.9px)}
+.fx.done .lip{opacity:0}
+.chip{fill:#4F2F46;stroke:none;stroke-linejoin:round;
+  transition:fill 160ms var(--ease),opacity var(--mid) var(--ease)}
+.fx:hover .chip,.fx:focus-visible .chip{fill:#3B2035}
+.fx.done .chip{opacity:.45}
+.hitarea{fill:none;stroke:transparent;stroke-width:15;stroke-linecap:round}
+.gold{fill:none;stroke:url(#goldgrad);stroke-width:5.4;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:1;stroke-dashoffset:1;
+  filter:drop-shadow(0 1px 1px rgba(122,85,32,.5));
+  transition:stroke-dashoffset 1150ms linear}
+.gold-b{stroke-width:3.5;transition:stroke-dashoffset 500ms linear 950ms}
+.gold.filled{stroke-dashoffset:0}
+.cons-notes{max-width:42ch}
+.cons-notes p{font-size:15px;font-weight:500;margin:0 0 var(--s4)}
+.mend{opacity:0;transform:translateY(10px) rotate(-.6deg);
+  transition:opacity 700ms var(--ease),transform 700ms var(--bounce);
+  font-size:15px;line-height:1.6;font-weight:600;background:#fff;border:var(--line);
+  border-radius:var(--r);padding:var(--s3) var(--s4);box-shadow:var(--pop-sm);margin-bottom:var(--s3)}
+.mend.show{opacity:1;transform:none}
+.hint{font-size:15px;font-weight:700;color:var(--plum);margin:0 0 var(--s4)}
+.defn{background:#fff;border:var(--line);border-radius:var(--r);padding:var(--s3) var(--s4);
+  box-shadow:var(--pop-sm);margin:0 0 var(--s4);transform:rotate(-.6deg)}
+.defn .word{font-family:var(--display);font-weight:600;font-size:22px;margin:0 0 5px;color:var(--pink)}
+.defn .word span{font-family:var(--text);font-weight:600;font-size:12.5px;color:var(--plum-soft)}
+.defn p{font-size:14px;line-height:1.55;margin:0;font-weight:500}
+
+/* ── room I: wall text next to a taped-up photo ─────────────────────────── */
+.intro-grid{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);
+  gap:clamp(24px,4vw,54px);align-items:center}
+.snap{margin:0;width:100%;max-width:min(420px,38vw);justify-self:center}
+.snap .frame img,.snap .frame .ph{max-height:52dvh}
+.snap .frame{transform:rotate(2.6deg);transition:transform var(--mid) var(--bounce)}
+.snap .frame:hover{transform:rotate(0) scale(1.03)}
+.snap-cap{padding:10px 10px 14px;font-family:var(--hand);font-size:22px;color:var(--plum);text-align:center}
+
+/* ── the audio guide ───────────────────────────────────────────────────── */
+.guide{display:grid;grid-template-columns:minmax(0,264px) minmax(0,1fr);gap:clamp(26px,5vw,60px);align-items:start}
+.handset{background:var(--blue);border:var(--line);border-radius:var(--r-lg);
+  padding:var(--s4);box-shadow:var(--pop);transform:rotate(-1.4deg)}
+.readout{font-family:var(--display);font-size:28px;letter-spacing:.22em;color:var(--plum);
+  background:#D8FFF4;border:var(--line);border-radius:var(--r);padding:10px;
+  text-align:center;min-height:58px;display:grid;place-items:center;margin-bottom:var(--s3)}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2)}
+.key{padding:11px 0;text-align:center;font-family:var(--display);font-weight:500;font-size:18px;
+  background:#fff;border:2px solid var(--plum);border-radius:12px;color:var(--plum);
+  box-shadow:2px 2px 0 var(--plum);transition:transform 120ms var(--ease),box-shadow 120ms var(--ease)}
+.key:hover{background:var(--yellow)}
+.key:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--plum)}
+.key.wide{font-size:13px;font-weight:600}
+.track{min-height:190px}
+.track .idle{font-family:var(--hand);font-size:23px;color:var(--plum-soft);max-width:26ch;margin:0}
+.track h3{font-family:var(--display);font-weight:600;font-size:clamp(21px,2.8vw,29px);margin:0 0 6px}
+.track .song{font-size:14px;font-weight:800;color:var(--pink);margin:0 0 var(--s3)}
+.track .song a{color:var(--pink)}
+.track p.body{font-size:15.5px;line-height:1.65;font-weight:500;max-width:40ch;margin:0}
+.track .fadein{animation:pop var(--mid) var(--bounce) both}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+.player{display:flex;align-items:center;gap:10px;max-width:330px;margin:0 0 var(--s4);
+  background:#fff;border:2px solid var(--plum);border-radius:var(--r-pill);
+  padding:6px 14px 6px 6px;box-shadow:var(--pop-sm)}
+.pp{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:50%;
+  background:var(--pink);color:#fff;font-size:12px;letter-spacing:1px}
+.pp:hover{background:var(--plum)}
+.pbar{flex:1;height:9px;background:var(--pink-soft);border-radius:var(--r-pill);
+  cursor:pointer;position:relative;overflow:hidden}
+.pfill{position:absolute;inset:0 auto 0 0;width:0%;border-radius:var(--r-pill);
+  background:linear-gradient(90deg,var(--pink),var(--yellow))}
+.ptime{font-size:12px;font-weight:800;color:var(--plum-soft);min-width:36px;text-align:right}
+.nosong{font-size:12.5px;font-weight:700;color:var(--plum-soft);background:#FFF6E2;
+  border:2px dashed var(--yellow);border-radius:12px;padding:9px 13px;margin:0 0 var(--s4);
+  max-width:330px}
+.nosong b{color:var(--pink)}
+.embed{width:100%;max-width:340px;border:0;border-radius:14px;margin:0 0 var(--s4);display:block}
+.dir{margin-top:var(--s4);font-size:13px;font-weight:600;color:var(--plum-soft);max-width:34ch;
+  background:#fff;border:2px dashed var(--pink-2);border-radius:var(--r);padding:var(--s3)}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   2 · THE LAST ROOM
+   ══════════════════════════════════════════════════════════════════════════ */
+.room--finale .room-inner{max-height:100%;overflow-y:auto;overscroll-behavior:contain;
+  touch-action:pan-x pan-y;scrollbar-width:none}
+.room--finale .room-inner::-webkit-scrollbar{display:none}
+.final{display:grid;place-items:center;text-align:center;width:100%}
+.veil-wrap{position:relative;width:min(430px,80vw);touch-action:pan-x;-webkit-user-select:none;user-select:none}
+.veil-art{position:relative;background:#fff;border:var(--line);border-radius:var(--r-lg);
+  padding:12px;box-shadow:var(--pop)}
+.veil-art .mat{border-radius:14px;overflow:hidden;background:var(--pink-soft)}
+.veil-art img,.veil-art .ph{width:100%;aspect-ratio:1/1;object-fit:cover}
+.veil-mask{position:absolute;inset:-8px;z-index:3;overflow:hidden;touch-action:pan-x;border-radius:var(--r-lg)}
+.veil{position:absolute;inset:0;cursor:grab;touch-action:pan-x;
+  transform:translate3d(0,calc(var(--pull,0) * 104%),0);
+  background:repeating-linear-gradient(90deg,var(--pink) 0 26px,#FF5C9E 26px 52px);
+  border:var(--line);border-radius:var(--r-lg)}
+.veil::after{ /* scalloped hem */
+  content:"";position:absolute;left:-3px;right:-3px;bottom:-13px;height:26px;
+  background:radial-gradient(circle at 13px 0,var(--pink) 12px,transparent 12.5px) 0 0/26px 26px repeat-x;
+  filter:drop-shadow(0 3px 0 var(--plum))}
+.veil:active{cursor:grabbing}
+.pull-hint{margin-top:var(--s4);font-family:var(--hand);font-size:25px;color:var(--pink)}
+.pull-hint .alt{display:block;margin-top:2px;font-family:var(--text);font-size:12.5px;font-weight:700;color:var(--plum-soft)}
+.pull-hint .alt button{color:var(--plum);border-bottom:2px solid var(--pink)}
+.letter{max-width:44ch;margin:var(--s6) auto 0;text-align:left;display:none}
+.letter.live{display:block}
+.letter p{font-size:clamp(16px,2.3vw,20px);line-height:1.65;font-weight:600;margin:0 0 var(--s4);
+  opacity:0;transform:translateY(14px)}
+.letter p.in{animation:pop 1100ms var(--bounce) both}
+.letter p.sign{font-family:var(--hand);font-size:clamp(28px,4vw,38px);color:var(--pink);font-weight:400}
+.final-plaque{margin:var(--s6) auto 0;padding:var(--s4) var(--s5);max-width:min(420px,86vw);
+  background:#fff;border:var(--line);border-radius:var(--r-lg);box-shadow:var(--pop);
+  transform:rotate(1.2deg);opacity:0;transition:opacity 900ms var(--ease);display:none}
+.final-plaque.live{display:block}
+.final-plaque.in{opacity:1}
+.final-plaque .t{font-family:var(--display);font-weight:600;font-size:21px;margin:0 0 var(--s3)}
+.room.unveiled{--wash:#FFD24D;background:radial-gradient(110% 74% at 50% 6%,#FFE49A,transparent 64%),#FFF3E4}
+.ongoing{display:inline-block;margin-top:var(--s4);font-size:26px;color:var(--pink);
+  transition:transform 700ms var(--bounce)}
+.ongoing:hover{transform:rotate(180deg) scale(1.2)}
+.last-line{margin:var(--s2) 0 0;font-family:var(--hand);font-size:22px;color:var(--blue);min-height:1.2em}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   3 · CHROME
+   ══════════════════════════════════════════════════════════════════════════ */
+#hud{position:fixed;top:0;left:0;right:0;z-index:40;padding:env(safe-area-inset-top) 0 0;
+  opacity:0;transition:opacity 700ms var(--ease) 300ms;pointer-events:none}
+#hud.lit{opacity:1}
+#hud .bar{height:5px;background:#fff;border-bottom:2px solid var(--plum)}
+#hud .fill{height:3px;background:linear-gradient(90deg,var(--pink),var(--yellow),var(--mint));width:0%;
+  transition:width 180ms linear}
+#hud .row{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);
+  padding:var(--s3) var(--s4);pointer-events:auto}
+#hud .where{font-family:var(--display);font-weight:500;font-size:13px;color:var(--plum);
+  background:#fff;border:2px solid var(--plum);border-radius:var(--r-pill);padding:5px 13px;
+  box-shadow:var(--pop-sm)}
+#plan-btn{font-weight:800;font-size:13px;color:#fff;background:var(--pink);
+  border:2px solid var(--plum);border-radius:var(--r-pill);padding:7px 15px;box-shadow:var(--pop-sm);
+  transition:transform 120ms var(--ease),box-shadow 120ms var(--ease)}
+#plan-btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--plum)}
+
+#plan{position:fixed;inset:0;z-index:70;display:none;background:rgba(46,15,40,.5);backdrop-filter:blur(4px)}
+#plan.open{display:grid;place-items:center;animation:fade var(--fast) var(--ease);padding:var(--s4)}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.plan-card{width:min(440px,90vw);background:#fff;border:var(--line);border-radius:var(--r-lg);
+  padding:var(--s5);box-shadow:8px 8px 0 var(--plum)}
+.plan-card h2{font-family:var(--display);font-weight:600;font-size:25px;margin:0 0 var(--s4)}
+.plan-list{list-style:none;margin:0;padding:0}
+.plan-list button{display:flex;gap:var(--s3);align-items:center;width:100%;padding:10px 12px;
+  text-align:left;border-radius:12px;transition:background 140ms var(--ease)}
+.plan-list button:hover{background:var(--pink-soft)}
+.plan-list .n{font-family:var(--display);font-size:13px;color:#fff;background:var(--plum);
+  width:28px;height:28px;border-radius:var(--r-pill);display:grid;place-items:center;flex:0 0 28px}
+.plan-list .t{font-size:15px;font-weight:700}
+.plan-list [aria-current="true"] .t{color:var(--pink)}
+.plan-list [aria-current="true"] .n{background:var(--pink)}
+
+#modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(46,15,40,.55);backdrop-filter:blur(5px)}
+#modal.open{display:grid;place-items:center;animation:fade var(--fast) var(--ease);padding:var(--s4)}
+.sheet{width:min(860px,94vw);max-height:88dvh;overflow:auto;overscroll-behavior:contain;
+  background:#fff;border:var(--line);border-radius:var(--r-lg);box-shadow:8px 8px 0 var(--plum);
+  display:grid;grid-template-columns:minmax(0,44%) minmax(0,56%);animation:pop var(--mid) var(--bounce) both}
+.sheet .shot{background:var(--pink-soft);overflow:hidden;border-radius:var(--r-lg) 0 0 var(--r-lg)}
+.sheet .shot img,.sheet .shot .ph{width:100%;height:100%;min-height:250px;object-fit:cover}
+.sheet .body{padding:clamp(22px,3.4vw,40px)}
+.sheet h3{font-family:var(--display);font-weight:600;font-size:clamp(24px,3.6vw,34px);
+  margin:var(--s3) 0 var(--s3);line-height:1.1}
+.sheet .story{font-size:15.5px;line-height:1.7;font-weight:500;margin:0 0 var(--s4);max-width:44ch}
+.sheet .label{margin:var(--s4) 0;padding-top:var(--s4);border-top:2px dashed var(--pink-soft)}
+.note-btn{font-size:13px;font-weight:800;color:var(--plum);background:var(--yellow);
+  border:2px solid var(--plum);border-radius:var(--r-pill);padding:8px 16px;box-shadow:var(--pop-sm)}
+.note-btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--plum)}
+.note{margin-top:var(--s3);font-family:var(--hand);font-size:23px;line-height:1.35;color:var(--plum);
+  background:#FFFBEA;border:2px dashed var(--yellow);border-radius:var(--r);padding:var(--s3) var(--s4);
+  display:none;max-width:42ch;transform:rotate(-.8deg)}
+.note.show{display:block;animation:pop var(--mid) var(--bounce) both}
+.close{position:absolute;top:calc(var(--s4) + env(safe-area-inset-top));right:var(--s4);z-index:2;
+  width:44px;height:44px;display:grid;place-items:center;font-size:20px;font-weight:800;
+  background:#fff;color:var(--plum);border:var(--line);border-radius:var(--r-pill);box-shadow:var(--pop-sm)}
+.close:hover{background:var(--pink);color:#fff}
+
+.nudge{position:fixed;z-index:41;bottom:calc(var(--s5) + env(safe-area-inset-bottom));left:50%;
+  transform:translateX(-50%);font-family:var(--display);font-weight:500;font-size:14px;color:var(--plum);
+  background:var(--yellow);border:2px solid var(--plum);border-radius:var(--r-pill);padding:8px 18px;
+  box-shadow:var(--pop-sm);opacity:0;transition:opacity 600ms var(--ease);pointer-events:none;white-space:nowrap}
+.nudge.show{opacity:1;animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+.step{position:fixed;z-index:41;top:50%;margin-top:-26px;width:52px;height:52px;display:none;
+  place-items:center;font-size:20px;color:var(--plum);background:#fff;border:var(--line);
+  border-radius:var(--r-pill);box-shadow:var(--pop-sm)}
+.step:hover{background:var(--pink);color:#fff}
+.step.prev{left:var(--s4)} .step.next{right:var(--s4)}
+#gallery.lit ~ .step{display:grid}
+.step[hidden]{display:none !important}
+
+.placard{position:absolute;right:clamp(16px,4vw,54px);bottom:16vh;z-index:3;
+  padding:10px 15px;font-size:12px;font-weight:800;color:var(--plum);background:#fff;
+  border:var(--line);border-radius:12px;box-shadow:var(--pop-sm);transform:rotate(4deg);
+  transition:transform var(--fast) var(--bounce),background var(--fast) var(--ease)}
+.placard:hover{transform:rotate(-2deg) scale(1.04)}
+.placard.touched{background:var(--mint);font-family:var(--hand);font-size:22px;font-weight:400;
+  transform:rotate(-3deg)}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   4 · SMALLER SCREENS — reworked, not squashed
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width:900px){
+  .cons{grid-template-columns:1fr;gap:var(--s4)}
+  .vessel{max-width:min(250px,52vw)}
+  .guide{grid-template-columns:1fr;gap:var(--s4)}
+  .sheet{grid-template-columns:1fr}
+  .sheet .shot{border-radius:var(--r-lg) var(--r-lg) 0 0}
+  .sheet .shot img,.sheet .shot .ph{min-height:0;height:32dvh}
+  .inv{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:640px){
+  :root{--s5:24px;--s6:34px;--s7:56px;--pop:4px 4px 0 var(--plum)}
+  .room{padding:calc(70px + env(safe-area-inset-top)) 18px calc(48px + env(safe-area-inset-bottom))}
+  .room::after{height:26px}
+  .room-head{margin-bottom:var(--s4)}
+  .room-head h2{font-size:clamp(19px,5.4vw,26px)}
+  .room-head{flex-wrap:wrap}
+  .wall{gap:var(--s5);flex-direction:column;align-items:center}
+  .piece{max-width:min(290px,80vw)}
+  .frame img,.frame .ph{aspect-ratio:auto;height:clamp(130px,23dvh,200px)}
+  .walltext{padding:18px}
+  .walltext p{font-size:16px}
+  .inv{gap:10px}
+  .tag{aspect-ratio:1/.92}
+  .tag .back{font-size:11px;line-height:1.3;padding:6px}
+  .tag .front span{font-size:18px}
+  .cons{gap:var(--s3)}
+  .vessel{max-width:min(172px,42vw)}
+  .cons-notes{max-height:36dvh;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-x pan-y;
+    padding-right:8px}
+  .cons-notes p{font-size:14px;margin-bottom:var(--s3)}
+  .mend{font-size:14px;padding:10px 14px}
+  .hint{font-size:14px;margin-bottom:var(--s3)}
+  .intro-grid{grid-template-columns:1fr;gap:var(--s3);justify-items:center}
+  .snap{max-width:min(215px,54vw);order:-1}
+  .snap .frame img,.snap .frame .ph{aspect-ratio:auto;height:clamp(112px,19dvh,176px);max-height:none}
+  .snap-cap{font-size:18px;padding:6px 8px 10px}
+  .walltext{max-height:34dvh;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-x pan-y}
+  .defn{padding:10px 14px}
+  .defn .word{font-size:19px}
+  .defn p{font-size:13px}
+  .player{max-width:100%}
+  .handset{max-width:272px;margin-inline:auto;padding:var(--s3)}
+  .readout{font-size:23px;min-height:48px}
+  .key{padding:10px 0;font-size:16px}
+  .track{min-height:0;margin-top:var(--s3)}
+  .track .idle{font-size:20px}
+  .track p.body{font-size:14.5px}
+  .dir{font-size:12px;margin-top:var(--s3);padding:10px}
+  .placard{right:14px;bottom:13vh;font-size:11px;padding:8px 12px}
+  .step{display:none !important}
+  .veil-wrap{width:min(280px,72vw)}
+  .letter{margin-top:var(--s5)}
+  .sheet .body{padding:20px}
+  .close{width:40px;height:40px;font-size:18px}
+  .cord{height:clamp(40px,8vh,74px)}
+  .bulb svg{width:72px}
+  .plaque h1{font-size:clamp(32px,11vw,54px)}
+}
+@media (max-width:640px) and (max-height:700px){
+  .frame img,.frame .ph{height:clamp(110px,18dvh,160px)}
+  .cap h3{font-size:16px}
+  .cap{padding:10px 8px 12px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:1ms !important;animation-iteration-count:1 !important;
+    transition-duration:120ms !important;scroll-behavior:auto !important}
+  .tag{transition:none}
+  .hang,.swing{animation:none !important}
+}
+
+</style>
+</head>
+<body>
+
+<!-- ═══ 0 · LIGHTS OFF ═════════════════════════════════════════════════════ -->
+<div id="door">
+  <div class="hang">
+    <div class="swing">
+      <div class="cord"></div>
+      <button class="bulb" id="switch" aria-describedby="d-help">
+        <span class="halo" aria-hidden="true"></span>
+        <svg viewBox="0 0 90 128" aria-hidden="true">
+          <path class="glass-body" d="M45 7 C22 7 8 25 8 45 c0 15 9 24 15 31 4 5 6 9 6 14 h32 c0-5 2-9 6-14 6-7 15-16 15-31 C82 25 68 7 45 7 Z"/>
+          <path class="filament" d="M32 54 q4.5 -15 8.5 0 q4 15 8 0 q4 -15 8.5 0"/>
+          <rect class="cap" x="27" y="92" width="36" height="10" rx="5"/>
+          <rect class="cap" x="29" y="104" width="32" height="9" rx="4.5"/>
+          <rect class="cap" x="32" y="115" width="26" height="9" rx="4.5"/>
+        </svg>
+        <span class="sr" id="d-hold-sr">Turn on the light</span>
+      </button>
+    </div>
+  </div>
+  <div class="plaque">
+    <p class="etch" id="d-etch"></p>
+    <h1 id="d-title"></h1>
+    <p class="sub" id="d-sub"></p>
+    <p class="hold" id="d-hold"></p>
+    <p class="sr" id="d-help">Press and hold the bulb, or hold the Enter key, to turn on the light.</p>
+    <p class="patience" id="d-patience"></p>
+  </div>
+</div>
+
+<div id="bloom" aria-hidden="true"></div>
+
+<!-- ═══ 1 · THE GALLERY ════════════════════════════════════════════════════ -->
+<main id="gallery" tabindex="-1" aria-label="Gallery rooms"></main>
+<noscript><p style="padding:48px;max-width:40ch;margin:auto;color:#2E0F28;font-family:Grandstander,sans-serif">
+This one needs JavaScript switched on. The whole gallery is built in the browser.</p></noscript>
+
+<!-- ═══ 2 · CHROME ═════════════════════════════════════════════════════════ -->
+<div id="hud">
+  <div class="bar"><div class="fill" id="progress"></div></div>
+  <div class="row">
+    <span class="where" id="where"></span>
+    <button id="plan-btn" aria-haspopup="dialog">Floor plan</button>
+  </div>
+</div>
+<button class="step prev" id="prev" aria-label="Previous room" hidden>&#8592;</button>
+<button class="step next" id="next" aria-label="Next room">&#8594;</button>
+<p class="nudge" id="nudge"></p>
+
+<div id="plan" role="dialog" aria-modal="true" aria-labelledby="plan-title">
+  <button class="close" id="plan-close" aria-label="Close floor plan">&#215;</button>
+  <div class="plan-card">
+    <h2 id="plan-title">Floor plan</h2>
+    <ul class="plan-list" id="plan-list"></ul>
+  </div>
+</div>
+
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+  <button class="close" id="modal-close" aria-label="Close">&#215;</button>
+  <div class="sheet" id="sheet"></div>
+</div>
+
+
+<script>
+"use strict";
+/* ╔══════════════════════════════════════════════════════════════════════════╗
+   ║                                                                          ║
+   ║   ✎  EDIT EVERYTHING HERE — AND ONLY HERE                                ║
+   ║                                                                          ║
+   ║   Every line marked ✎ is placeholder text written to show the shape.     ║
+   ║   Replace it with your own. Nothing below this CONFIG block needs to     ║
+   ║   be touched to make the site yours.                                     ║
+   ║                                                                          ║
+   ║   PHOTOS: make a folder called  photos/  next to this file and drop in   ║
+   ║   the images named below (014.jpg, 023.jpg …). Any missing photo shows   ║
+   ║   a styled empty frame instead of breaking, so you can ship it in        ║
+   ║   stages. Portrait crops look best; the last one should be square.       ║
+   ║                                                                          ║
+   ╚══════════════════════════════════════════════════════════════════════════╝ */
+
+const CONFIG = {
+
+  /* ── who this is for ──────────────────────────────────────────────────── */
+  herName:    "Jasmeen",                    // ✎ her name
+  yourName:   "Armaan",                   // ✎ your name
+  anniversary:"3 June 2026",             // ✎ the date it started
+  secretCode: "1903",                     // ✎ 4 digits that unlock the hidden track (try your date)
+  pageTitle:  "The Jasmeen Collection",     // ✎ browser tab text
+
+
+  /* ── the door: what she sees before anything is lit ───────────────────── */
+  door:{
+    etch:     "open for one visitor only",                                      // ✎
+    title:    'The <em>Jasmeen</em> Collection',                                  // ✎ <em> is the gold word
+    sub:      "Seven rooms.", // ✎
+    hold:     "Press and hold the bulb",                                        // ✎
+    patience: "(take your time. I waited too.)"                                 // ✎ appears if she waits 14s
+  },
+
+  /* ── the walk ─────────────────────────────────────────────────────────── */
+  nudge: "swipe, scroll or use \u2190 \u2192",   // ✎ 
+  rooms:[
+
+    /* ROOM I ─ the wall text you read on the way in ─────────────────────── */
+    {
+      type:"walltext", numeral:"I", title:"The Beginning", tint:"a",
+      photo:"photos/first-meeting.jpg",                                          // ✎ the photo of you two meeting
+      alt:"The first photo of us",
+      caption:"The first meeting",                                                   // ✎ handwritten under the photo
+      paragraphs:[                                                              // ✎ how it started
+        "The collection began with a card game. I was the best at lying and she was the worst. Made a perfect duo for bluff.",
+        "The worth wasnt recognized at first but the painting was considered valueable and worth keeping later."
+      ],
+      acq:[                                                                     // ✎ museum label, three rows
+        ["Acquired","3 March 2026"],
+        ["Provenance","The Bluff Duo"],
+        ["Condition","Better than when it arrived"]
+      ],
+      placard:{ text:"Please do not touch", touched:"obviously you dont listen" }  // ✎ easter egg: tap the sign
+    },
+
+    /* ROOM II ─ two framed pieces ───────────────────────────────────────── */
+    {
+      type:"exhibits", numeral:"II", title:"Early Works", tint:"b",
+      exhibits:[
+        {
+          no:"014", title:"One chair", date:"March 2026",             // ✎
+          medium:"One chair, two people... and bluff obviously.",            // ✎
+          size:"One shared chair",                                             // ✎
+          photo:"photos/014.jpg",
+          alt:"Us under one umbrella in the rain",
+          story:"I was pulling your chair towards me but I did not expect us to not even need the second chair.", // ✎
+          note:"The curator still sits on that table whenever he goes to school."     // ✎ hidden note
+        },
+        {
+          no:"023", title:"The Funny One", date:"April 2026",           // ✎
+          medium:"Unknown Source",
+          size:"A secret",
+          photo:"photos/023.jpg",
+          alt:"Late night in the kitchen",
+          story:"A funny photo that I found of you but you will never know the source.",
+          note:"The owner loved the painting."
+        }
+      ]
+    },
+
+    /* ROOM III ─ two more ───────────────────────────────────────────────── */
+    {
+      type:"exhibits", numeral:"III", title:"The Middle Period", tint:"a",
+      exhibits:[
+        {
+          no:"051", title:"Out of frame", date:"June 27",
+          medium:"Senior Sunrise",
+          size:"10:00 PM",
+          photo:"photos/051.jpg",
+          alt:"On the train, looking out the window",
+          story:"You were too short to be in frame with me so I had to bend my knees to take a photo. My act of kindness was somehow funny to you?",
+          note:"I know youre 6'2 and im the short one."
+        },
+        {
+          no:"068", title:"The photo that was never saved", date:"April 2026",
+          medium:"Meta Glasses for the win",
+          size:"Tiny",
+          photo:"photos/068.jpg",
+          alt:"By the river at dusk",
+          story:"The photo was sent on view once which was not fair so it was recorded externally.",
+          note:"The curator deemed the photo to be too cute to not save!"
+        }
+      ]
+    },
+
+    /* ROOM IV ─ the inventory wall: twelve hinged tags ──────────────────── */
+    {
+      type:"inventory", numeral:"IV", title:"Inventory of Small Things I Love About You", tint:"c",
+      items:[                                                                    // ✎ twelve things about her
+        "The way you get mad at me.",
+        "The face you make when making fun of me.",
+        "You being playfully mean.",
+        "You remembering little things about me",
+        "You caring for me",
+        "You calling me out by my full government name when i do something questionable",
+        "You getting louder when you know youre right",
+        "You not worrying about anything till the last days",
+        "You fall asleep mid convos",
+        "You telling me that you wanna see me",
+        "You being the possesive type",
+        "You forgetting what you were saying mid convo"
+      ],
+      bonus:"I stopped writing at twelve but i havent ran out yet"            // ✎ reward for turning all twelve
+    },
+
+    /* ROOM V ─ conservation: the honest room ────────────────────────────── */
+    {
+      type:"conservation", numeral:"V", title:"Fixing Things", tint:"d",
+      definition:{                                                               // ✎ the idea the room is built on
+        word:"Kintsugi",
+        pron:"kin-tsoo-ghee, Japanese",
+        text:"The practice of mending broken pottery with gold instead of glue you can't see. The crack isn't hidden, it's the most beautiful line on the finished bowl, and the piece is worth more after it breaks than it was before."
+      },
+      hint:"Try clicking the cracks.",                                           // ✎
+      mends:[                                                                    // ✎ the hard parts, and what they became
+        "Cant really think of a third fight that weve had.",
+        "You suspected I was drinking without asking you. Which was valid considering my peak acting skills.",
+        "I'd take back the things i said about you sleeping too much cuz after sleeping 15 hours a day I realise sleep is love."
+      ]
+    },
+
+    /* ROOM VI ─ the audio guide: type a number, hear a track ────────────── */
+    {
+      type:"guide", numeral:"VI", title:"Audio Guide", tint:"b",
+      directory:"Tracks 014, 023, 051 and 068.", // ✎
+      idle:"type a number, press play",
+      unknown:"No track under that number.", // ✎ shown for wrong numbers — never an error
+      /* Each track: drop an mp3 (or m4a / ogg) into the songs/ folder and name it
+         below. The song starts as soon as she presses play, and the memory
+         shows next to it. If you'd rather not host files, leave audio blank and
+         put a Spotify embed link in `embed` instead — on a Spotify track page:
+         Share ▸ Embed track ▸ copy the src, it looks like
+         https://open.spotify.com/embed/track/XXXXXXXX                          */
+      tracks:{                                                                   // ✎ key = the number she types
+        "014":{ title:"Track 014", song:"Song title — Artist",
+                audio:"", embed:"https://open.spotify.com/embed/track/6l5ew6X4HxpX3t1j8M1RDp?utm_source=generator&si=82475d5c4a664f20",                                 // ✎
+                text:"The Song that I put on my notes while we were still talking." },
+        "023":{ title:"Track 023", song:"Song title — Artist",
+                audio:"", embed:"https://open.spotify.com/embed/track/0cFgEqEUJWqn8Oxiflu0Us?utm_source=generator&si=716bf88d59e84b15",
+                text:"The Song I posted you on for the first time." },
+        "051":{ title:"Track 051", song:"Song title — Artist",
+                audio:"", embed:"https://open.spotify.com/embed/track/3rUGC1vUpkDG9CZFHMur1t?utm_source=generator&si=2dad5b0c6b28497f",
+                text:"Your favourite artist. (Bad taste)" },
+        "068":{ title:"Track 068", song:"Song title — Artist",
+                audio:"", embed:"https://open.spotify.com/embed/track/4OqDTDvUGAX41D7zyxxEoD?utm_source=generator&si=ca6d286c72ba45e9",
+                text:"The song that always makes me think of you" }
+      },
+      hidden:{ title:"Track 000 — not in the catalogue", song:"Song title — Artist", // ✎ unlocked by secretCode
+               audio:"songs/000.mp3", embed:"",
+               text:"There's a piece that isn't hung anywhere in this building: the version of me from before I met you. He was fine. He was just working with much worse material." }
+    },
+
+    /* ROOM VII ─ the last room ──────────────────────────────────────────── */
+    {
+      type:"finale", numeral:"VII", title:"Untitled (Ongoing?)", tint:"e",
+      photo:"photos/final.jpg",                                                  // ✎ square crop, the best one
+      alt:"The two of us",
+      pull:"Pull the cloth down",
+      pullAlt:"or unveil it",
+      letter:[                                                                   // ✎ THE LETTER — the whole point
+        "I could not say this out loud, so I built you a this instead.",
+        "Everything in it is small. a shared chair, the funny and cute photos i saved of you, YOU. But its irreplacable and priceless.",
+        "We have spent almost 6 months creating small memories worth keeping.",
+        "Happy anniversary(if its still considered one). The collection can still accept new work.",
+        "— Armaan"                                                               // ✎ your sign-off
+      ],
+      plaque:{
+        title:"Untitled (Ongoing?)",
+        rows:[                                                                   // ✎
+          ["Acquired","19 September 2026"],
+          ["Medium","Mixed, life-size"],
+          ["Terms","On permanent loan. No end date listed."]
+        ]
+      },
+      lastLine:"still collecting."                                               // ✎ easter egg: click the ∞
+    }
+  ]
+};
+
+/* ╚═══════════════ END OF EDITABLE CONTENT ═══════════════════════════════╝ */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ENGINE — you shouldn't need to edit anything below.
+   Structure: helpers → room builders → door → gallery → chrome → atmosphere
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const $  = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const clamp = (n,a,b)=>Math.max(a,Math.min(b,n));
+
+function el(tag,cls,html){
+  const n=document.createElement(tag);
+  if(cls) n.className=cls;
+  if(html!=null) n.innerHTML=html;
+  return n;
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+/* a missing photo becomes a designed empty frame, never a broken image */
+function emptyFrame(src,no){
+  const name = src ? src.split("/").pop() : "your photo";
+  return el("div","ph",
+    `<span class="num">${esc(no||"—")}</span>photo not found<br><span style="color:#7A5570">add <b style="color:#FF3D8B">${esc(name)}</b></span>`);
+}
+function photo(src,alt,no){
+  if(!src) return emptyFrame(src,no);
+  const img=new Image();
+  img.src=src; img.alt=alt||""; img.decoding="async"; img.loading="lazy";
+  img.addEventListener("error",()=>img.replaceWith(emptyFrame(src,no)),{once:true});
+  return img;
+}
+/* stable pseudo-random so the bowl cracks the same way every visit */
+function seeded(n){ return ()=>{ n|=0; n=n+0x6D2B79F5|0;
+  let t=Math.imul(n^n>>>15,1|n); t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296; }; }
+
+/* midpoint displacement: keeps the route exactly, adds the fine irregular
+   detail a real fracture has instead of a regular zigzag */
+function roughen(pts,amp,seed,passes){
+  const rnd=seeded(seed); let out=pts.slice();
+  for(let p=0;p<(passes||4);p++){
+    const next=[out[0]];
+    for(let i=0;i<out.length-1;i++){
+      const a=out[i],b=out[i+1];
+      let dx=b[0]-a[0],dy=b[1]-a[1];
+      const len=Math.hypot(dx,dy)||1;
+      const off=(rnd()*2-1)*amp*Math.min(1,len/18);
+      next.push([(a[0]+b[0])/2-dy/len*off,(a[1]+b[1])/2+dx/len*off],b);
+    }
+    out=next; amp*=.52;
+  }
+  return out;
+}
+
+/* a rough polyline becomes a tapered fracture outline —
+   widest where the break started, closing to a point at the tip */
+function fracture(pts,maxW){
+  const n=pts.length,L=[],R=[];
+  for(let i=0;i<n;i++){
+    const p=pts[i],a=pts[Math.max(0,i-1)],b=pts[Math.min(n-1,i+1)];
+    let dx=b[0]-a[0],dy=b[1]-a[1];
+    const m=Math.hypot(dx,dy)||1; dx/=m; dy/=m;
+    const t=i/(n-1);
+    const wob=.5+.5*Math.abs(Math.sin(i*1.9+p[0]*.37));
+    const w=Math.max(.18,maxW*Math.pow(1-t,.62)*wob);
+    L.push([p[0]-dy*w,p[1]+dx*w]);
+    R.push([p[0]+dy*w,p[1]-dx*w]);
+  }
+  const f=q=>q.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join("L");
+  return "M"+f(L)+"L"+f(R.reverse())+"Z";
+}
+const seam=pts=>"M"+pts.map(p=>p[0]+","+p[1]).join("L");
+/* smooth curve through anchor points, for the gold to pour down cleanly */
+function smooth(pts){
+  if(pts.length<3) return seam(pts);
+  let d="M"+pts[0][0]+","+pts[0][1];
+  for(let i=0;i<pts.length-1;i++){
+    const p0=pts[i-1]||pts[i], p1=pts[i], p2=pts[i+1], p3=pts[i+2]||p2;
+    const c1x=p1[0]+(p2[0]-p0[0])/6, c1y=p1[1]+(p2[1]-p0[1])/6;
+    const c2x=p2[0]-(p3[0]-p1[0])/6, c2y=p2[1]-(p3[1]-p1[1])/6;
+    d+=`C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0]},${p2[1]}`;
+  }
+  return d;
+}
+
+function labelList(rows){
+  const dl=el("dl","label");
+  rows.forEach(([k,v])=>{ dl.append(el("dt",null,esc(k)), el("dd",null,esc(v))); });
+  return dl;
+}
+
+/* ── room builders ─────────────────────────────────────────────────────── */
+const BUILD = {
+
+  walltext(room){
+    const grid=el("div","intro-grid");
+    const w=el("div","walltext");
+    w.dataset.vscroll="1";
+    room.paragraphs.forEach((p,i)=>w.append(el("p",i===0?"drop":null,esc(p))));
+    if(room.acq){ const a=el("div","acq"); a.append(labelList(room.acq)); w.append(a); }
+    grid.append(w);
+    if("photo" in room){
+      const fig=el("figure","snap");
+      const fr=el("div","frame"), mat=el("div","mat");
+      mat.append(photo(room.photo,room.alt,"01"));
+      fr.append(mat);
+      if(room.caption) fr.append(el("figcaption","snap-cap",esc(room.caption)));
+      fig.append(fr); grid.append(fig);
+    }
+    return grid;
+  },
+
+  exhibits(room){
+    const wall=el("div","wall");
+    room.exhibits.forEach(ex=>{
+      const b=el("button","piece");
+      b.setAttribute("aria-label",`Open exhibit ${ex.no}, ${ex.title}`);
+      const fr=el("div","frame"), mat=el("div","mat");
+      mat.append(photo(ex.photo,ex.alt,ex.no)); fr.append(mat);
+      b.append(fr);
+      const cap=el("div","cap");
+      cap.append(el("h3",null,esc(ex.title)),
+                 el("p","meta",`<span class="acc">${esc(ex.no)}</span> &nbsp;${esc(ex.date)}`),
+                 el("p","more","tap to read the rest"));
+      fr.append(cap);
+      b.addEventListener("click",()=>openSheet(ex));
+      wall.append(b);
+    });
+    return wall;
+  },
+
+  inventory(room){
+    const wrap=el("div");
+    if(room.intro) wrap.append(el("p","hint",esc(room.intro)));
+    const grid=el("div","inv");
+    let found=0;
+    room.items.forEach((txt,i)=>{
+      const t=el("button","tag");
+      t.setAttribute("aria-pressed","false");
+      t.setAttribute("aria-label",`Item ${i+1} of ${room.items.length}`);
+      t.innerHTML=`<span class="side front"><span>${String(i+1).padStart(2,"0")}</span></span>`+
+                  `<span class="side back">${esc(txt)}</span>`;
+      t.addEventListener("click",()=>{
+        const on=t.classList.toggle("flipped");
+        t.setAttribute("aria-pressed",String(on));
+        if(on && !t.dataset.seen){
+          t.dataset.seen="1"; found++;
+          counter.textContent=`${found} of ${room.items.length} turned over`;
+          if(found===room.items.length) bonus.classList.add("show");
+        }
+      });
+      grid.append(t);
+    });
+    const foot=el("div","inv-foot");
+    const counter=el("span","counter",`0 of ${room.items.length} turned over`);
+    const bonus=el("span","inv-bonus",esc(room.bonus));
+    foot.append(counter,bonus);
+    wrap.append(grid,foot);
+    return wrap;
+  },
+
+  conservation(room){
+    const wrap=el("div","cons");
+    const vessel=el("div","vessel");
+    /* same three positions as before — only the texture changed */
+    const breaks=[
+      { seed:7,  main:[[113,109],[110,128],[116,150],[111,172],[122,193],[133,209],[145,221]],
+                 branch:[[116,150],[127,158],[135,169],[140,181]] },
+      { seed:23, main:[[206,105],[201,124],[208,146],[202,168],[210,190],[205,210],[214,231]],
+                 branch:[[208,146],[219,151],[227,161],[231,173]] },
+      { seed:41, main:[[293,113],[298,132],[290,152],[297,171],[286,190],[275,205],[265,217]],
+                 branch:[[290,152],[278,157],[271,167],[267,178]] }
+    ].map(b=>({
+      mainRaw:b.main, branchRaw:b.branch,
+      main:roughen(b.main,3.4,b.seed),
+      branch:roughen(b.branch,2.1,b.seed+101,3)
+    }));
+    vessel.innerHTML=`
+      <svg viewBox="0 0 400 300" role="group" aria-label="A cracked bowl. Three breaks to mend.">
+        <defs>
+          <linearGradient id="goldgrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#FFF0BE"/>
+            <stop offset=".3" stop-color="#E3B84E"/>
+            <stop offset=".62" stop-color="#B3861F"/>
+            <stop offset="1" stop-color="#FFDC82"/>
+          </linearGradient>
+          <linearGradient id="clay" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FFFFFF"/><stop offset=".5" stop-color="#FFF1F7"/>
+            <stop offset="1" stop-color="#F2CFE1"/>
+          </linearGradient>
+          <radialGradient id="cavity" cx=".5" cy=".26" r=".82">
+            <stop offset="0" stop-color="#E9C4D8"/><stop offset="1" stop-color="#C398B4"/>
+          </radialGradient>
+        </defs>
+        <ellipse class="bowl-shadow" cx="200" cy="274" rx="94" ry="13"/>
+        <path class="body-line" d="M40,70 A160,34 0 0 1 360,70 C356,190 290,258 200,258 C110,258 44,190 40,70 Z"/>
+        <path class="sheen" d="M74,96 C80,168 114,216 160,240"/>
+        <ellipse class="mouth" cx="200" cy="70" rx="160" ry="34"/>
+        <ellipse class="mouth-in" cx="200" cy="74" rx="145" ry="27"/>
+        ${breaks.map((bk,i)=>`
+          <g class="fx" data-i="${i}" role="button" tabindex="0" aria-label="Mend break ${i+1} of 3">
+            <path class="halo" d="${seam(bk.main)}"/>
+            <path class="lip" d="${fracture(bk.main,1.75)}"/>
+            <path class="lip" d="${fracture(bk.branch,1.05)}"/>
+            <path class="chip" d="${fracture(bk.main,1.75)}"/>
+            <path class="chip" d="${fracture(bk.branch,1.05)}"/>
+            <path class="gold" pathLength="1" d="${smooth(bk.mainRaw)}"/>
+            <path class="gold gold-b" pathLength="1" d="${smooth(bk.branchRaw)}"/>
+            <path class="hitarea" d="${seam(bk.main)}"/>
+          </g>`).join("")}
+      </svg>`;
+    const notes=el("div","cons-notes");
+    notes.dataset.vscroll="1";
+    if(room.definition){
+      const d=el("div","defn");
+      d.append(el("p","word",`${esc(room.definition.word)} <span>${esc(room.definition.pron)}</span>`),
+               el("p",null,esc(room.definition.text)));
+      notes.append(d);
+    }
+    const hint=el("p","hint",esc(room.hint));
+    notes.append(hint);
+    const mends=room.mends.map(t=>el("p","mend",esc(t)));
+    mends.forEach(m=>notes.append(m));
+    wrap.append(vessel,notes);
+
+    let repaired=0;
+    const fire=g=>{
+      if(g.dataset.done) return;
+      g.dataset.done="1";
+      const i=+g.dataset.i;
+      g.classList.add("done");
+      $$(".gold",g).forEach(gold=>gold.classList.add("filled"));
+      mends[i].classList.add("show");
+      if(++repaired===3) setTimeout(()=>hint.remove(),700);
+    };
+    wrap.addEventListener("click",e=>{ const g=e.target.closest(".fx"); if(g) fire(g); });
+    wrap.addEventListener("keydown",e=>{
+      if(e.key!=="Enter"&&e.key!==" ") return;
+      const g=e.target.closest(".fx"); if(g){ e.preventDefault(); fire(g); }
+    });
+    return wrap;
+  },
+
+  guide(room){
+    const wrap=el("div","guide");
+    const sound=new Audio(); sound.preload="none";
+    const mmss=t=>isFinite(t)&&t>=0?`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,"0")}`:"0:00";
+
+    function player(src){
+      const p=el("div","player");
+      const pp=el("button","pp","\u25B6"); pp.setAttribute("aria-label","Play");
+      const bar=el("div","pbar"); bar.setAttribute("role","slider");
+      bar.setAttribute("aria-label","Seek");
+      const prog=el("div","pfill"); bar.append(prog);
+      const time=el("span","ptime","0:00");
+      p.append(pp,bar,time);
+
+      sound.pause(); sound.src=src; sound.currentTime=0;
+      const paint=()=>{
+        const d=sound.duration;
+        if(d) prog.style.width=(sound.currentTime/d*100).toFixed(2)+"%";
+        time.textContent=mmss(d?d-sound.currentTime:0);
+      };
+      sound.ontimeupdate=paint;
+      sound.onloadedmetadata=paint;
+      sound.onplay=()=>{ pp.textContent="\u275A\u275A"; pp.setAttribute("aria-label","Pause"); };
+      sound.onpause=()=>{ pp.textContent="\u25B6"; pp.setAttribute("aria-label","Play"); };
+      sound.onended=()=>{ prog.style.width="0%"; };
+      sound.onerror=()=>{
+        if(p.isConnected) p.replaceWith(el("p","nosong",
+          `no <b>${esc(src.split("/").pop())}</b> in the songs folder yet`));
+      };
+      pp.addEventListener("click",()=>{ sound.paused ? sound.play().catch(()=>{}) : sound.pause(); });
+      bar.addEventListener("click",e=>{
+        if(!sound.duration) return;
+        const r=bar.getBoundingClientRect();
+        sound.currentTime=clamp((e.clientX-r.left)/r.width,0,1)*sound.duration;
+      });
+      sound.play().catch(()=>{});
+      return p;
+    }
+    const set=el("div","handset");
+    const read=el("div","readout","– – –");
+    read.setAttribute("role","status");
+    const keys=el("div","keys");
+    let buf="";
+    const out=el("div","track");
+    out.append(el("p","idle",esc(room.idle)));
+
+    const render=()=>{ read.textContent = buf ? buf.split("").join(" ") : "– – –"; };
+    const play=()=>{
+      if(!buf) return;
+      const t = (buf===CONFIG.secretCode) ? room.hidden : room.tracks[buf];
+      out.innerHTML="";
+      const card=el("div","fadein");
+      if(t){
+        card.append(el("h3",null,esc(t.title)));
+        card.append(el("p","song",esc(t.song)));
+        if(t.audio){
+          card.append(player(t.audio));
+        }else if(t.embed){
+          const f=el("iframe");
+          f.src=t.embed; f.title=t.song; f.loading="lazy"; f.height="152";
+          f.setAttribute("allow","autoplay; clipboard-write; encrypted-media; picture-in-picture");
+          f.className="embed";
+          card.append(f);
+        }else{
+          card.append(el("p","nosong","add a song file for this track"));
+        }
+        card.append(el("p","body",esc(t.text)));
+      }else{
+        sound.pause();
+        card.append(el("p","body",esc(room.unknown)));
+      }
+      out.append(card);
+      buf=""; setTimeout(render,700);
+    };
+
+    "123456789".split("").forEach(d=>keys.append(mkKey(d)));
+    const clr=el("button","key wide","clear");
+    clr.addEventListener("click",()=>{ buf=""; render(); });
+    keys.append(clr, mkKey("0"));
+    const go=el("button","key wide","play");
+    go.addEventListener("click",play);
+    keys.append(go);
+
+    function mkKey(d){
+      const k=el("button","key",d);
+      k.addEventListener("click",()=>{
+        if(buf.length>=4) buf="";
+        buf+=d; render();
+        if(buf.length===4) setTimeout(play,260);
+      });
+      return k;
+    }
+    set.append(read,keys);
+    const right=el("div");
+    right.append(out, el("p","dir",esc(room.directory)));
+    wrap.append(set,right);
+    render();
+    return wrap;
+  },
+
+  finale(room){
+    const wrap=el("div","final");
+    const vw=el("div","veil-wrap");
+    const art=el("div","veil-art"), mat=el("div","mat");
+    mat.append(photo(room.photo,room.alt,"VII")); art.append(mat);
+    const mask=el("div","veil-mask"), veil=el("div","veil");
+    veil.setAttribute("role","button"); veil.setAttribute("tabindex","0");
+    veil.setAttribute("aria-label","Pull the cloth down to unveil the last piece");
+    mask.append(veil); vw.append(art,mask);
+
+    const hint=el("p","pull-hint",
+      `${esc(room.pull)}<span class="alt"><button type="button" id="unveil">${esc(room.pullAlt)}</button></span>`);
+    const letter=el("div","letter");
+    room.letter.forEach((line,i)=>{
+      const p=el("p", i===room.letter.length-1?"sign":null, esc(line));
+      letter.append(p);
+    });
+    const pl=el("div","final-plaque");
+    pl.append(el("p","t",esc(room.plaque.title)), labelList(room.plaque.rows));
+    const inf=el("button","ongoing","\u221E");
+    inf.setAttribute("aria-label","One more thing");
+    const last=el("p","last-line");
+    inf.addEventListener("click",()=>{ last.textContent=room.lastLine; });
+    pl.append(inf,last);
+    wrap.append(vw,hint,letter,pl);
+
+    /* pull-the-cloth: vertical drag, so horizontal swiping still works */
+    let dragging=false,y0=0,h=1,pull=0,revealed=false;
+    const setPull=v=>{ pull=clamp(v,0,1); veil.style.setProperty("--pull",pull); };
+    const reveal=()=>{
+      if(revealed) return; revealed=true;
+      veil.style.transition="transform 1150ms cubic-bezier(.2,.8,.2,1),opacity 500ms ease 800ms";
+      setPull(1); veil.style.opacity="0";
+      setTimeout(()=>{ mask.style.display="none"; },1300);
+      hint.style.transition="opacity 500ms"; hint.style.opacity="0";
+      setTimeout(()=>{ hint.hidden=true; },600);
+      wrap.closest(".room").classList.add("unveiled");
+      const step = REDUCED ? 0 : 900;
+      const scroller = wrap.closest(".room-inner");
+      letter.classList.add("live"); pl.classList.add("live");
+      [...letter.children].forEach((p,i)=>setTimeout(()=>{
+        p.classList.add("in");
+        if(scroller && !REDUCED && i>0){
+          scroller.scrollTo({top:p.offsetTop-scroller.clientHeight*0.42,behavior:"smooth"});
+        }
+      }, 700+i*step));
+      setTimeout(()=>{
+        pl.classList.add("in");
+        if(scroller && !REDUCED) scroller.scrollTo({top:scroller.scrollHeight,behavior:"smooth"});
+      }, 1100+letter.children.length*step);
+    };
+    veil.addEventListener("pointerdown",e=>{
+      if(revealed) return;
+      dragging=true; y0=e.clientY; h=vw.getBoundingClientRect().height||1;
+      veil.style.transition="none"; veil.setPointerCapture(e.pointerId);
+    });
+    veil.addEventListener("pointermove",e=>{ if(dragging) setPull((e.clientY-y0)/h); });
+    const release=()=>{
+      if(!dragging) return; dragging=false;
+      veil.style.transition="transform 600ms cubic-bezier(.2,.8,.2,1)";
+      if(pull>0.5) reveal(); else setPull(0);
+    };
+    veil.addEventListener("pointerup",release);
+    veil.addEventListener("pointercancel",release);
+    veil.addEventListener("keydown",e=>{
+      if(e.key==="Enter"||e.key===" "||e.key==="ArrowDown"){ e.preventDefault(); reveal(); }
+    });
+    setTimeout(()=>{ const u=$("#unveil"); if(u) u.addEventListener("click",reveal); },0);
+    return wrap;
+  }
+};
+
+/* ── build the gallery ─────────────────────────────────────────────────── */
+const gallery=$("#gallery");
+const ROMAN=["I","II","III","IV","V","VI","VII","VIII","IX","X"];
+
+CONFIG.rooms.forEach((room,i)=>{
+  const sec=el("section","room");
+  sec.dataset.tint=room.tint||"a";
+  sec.id="room-"+i;
+  sec.setAttribute("aria-label",`Room ${room.numeral||ROMAN[i]}: ${room.title}`);
+
+  const haze=el("div");
+  haze.setAttribute("aria-hidden","true");
+  haze.dataset.depth="70";
+  Object.assign(haze.style,{position:"absolute",inset:"-10% -20%",pointerEvents:"none",
+    background:"radial-gradient(50% 62% at 34% 4%, rgba(255,255,255,.85), transparent 72%)"});
+  sec.append(haze);
+
+  const inner=el("div","room-inner");
+  if(room.type==="finale"){ sec.classList.add("room--finale"); inner.dataset.vscroll="1"; }
+  const head=el("div","room-head");
+  head.dataset.depth="30";
+  head.append(el("span","numeral",esc(room.numeral||ROMAN[i])), el("h2",null,esc(room.title)));
+  inner.append(head, BUILD[room.type](room));
+  sec.append(inner);
+
+  if(room.placard){
+    const p=el("button","placard",esc(room.placard.text));
+    p.dataset.depth="-80";
+    p.addEventListener("click",()=>{ p.textContent=room.placard.touched; p.classList.add("touched"); },{once:true});
+    sec.append(p);
+  }
+  gallery.append(sec);
+});
+
+const rooms=$$(".room",gallery);
+
+/* ── moving through the gallery ────────────────────────────────────────── */
+let idx=-1, locked=false;
+const fill=$("#progress"), where=$("#where"), prevBtn=$("#prev"), nextBtn=$("#next");
+
+function go(i,instant){
+  i=clamp(i,0,rooms.length-1);
+  gallery.scrollTo({left:i*gallery.clientWidth, behavior:(instant||REDUCED)?"auto":"smooth"});
+}
+function syncChrome(){
+  const max=gallery.scrollWidth-gallery.clientWidth;
+  const p=max>0?gallery.scrollLeft/max:0;
+  fill.style.width=(p*100).toFixed(2)+"%";
+  const n=clamp(Math.round(gallery.scrollLeft/gallery.clientWidth),0,rooms.length-1);
+  if(n!==idx){
+    idx=n;
+    const r=CONFIG.rooms[idx];
+    where.textContent=`${r.numeral||ROMAN[idx]}. ${r.title}`;
+    $$("#plan-list button").forEach((b,i)=>b.setAttribute("aria-current",String(i===idx)));
+  }
+  prevBtn.hidden = idx===0;
+  nextBtn.hidden = idx===rooms.length-1;
+}
+
+/* depth: layers slide at different rates as a room crosses the screen */
+function parallax(){
+  const vw=gallery.clientWidth||1;
+  rooms.forEach((sec,i)=>{
+    const rel=(i*vw - gallery.scrollLeft)/vw;
+    if(Math.abs(rel)>1.4) return;
+    $$("[data-depth]",sec).forEach(n=>{
+      n.style.transform=`translate3d(${(rel*+n.dataset.depth).toFixed(1)}px,0,0)`;
+    });
+  });
+}
+let ticking=false;
+gallery.addEventListener("scroll",()=>{
+  if(ticking) return; ticking=true;
+  requestAnimationFrame(()=>{ syncChrome(); if(!REDUCED) parallax(); ticking=false; });
+},{passive:true});
+
+/* vertical wheel walks the gallery sideways, one room at a time */
+let wheelAcc=0;
+gallery.addEventListener("wheel",e=>{
+  if($("#modal").classList.contains("open")||$("#plan").classList.contains("open")) return;
+  const vs=e.target.closest&&e.target.closest("[data-vscroll]");
+  if(vs){
+    const up=vs.scrollTop>0, down=vs.scrollTop+vs.clientHeight<vs.scrollHeight-1;
+    if((e.deltaY<0&&up)||(e.deltaY>0&&down)) return;
+  }
+  const d=Math.abs(e.deltaY)>Math.abs(e.deltaX)?e.deltaY:e.deltaX;
+  e.preventDefault();
+  if(locked) return;
+  wheelAcc+=d;
+  if(Math.abs(wheelAcc)>38){
+    go(idx+(wheelAcc>0?1:-1)); wheelAcc=0; locked=true;
+    setTimeout(()=>{locked=false;},620);
+  }
+},{passive:false});
+
+addEventListener("keydown",e=>{
+  if($("#modal").classList.contains("open")||$("#plan").classList.contains("open")) return;
+  if(document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if(e.key==="ArrowRight"||e.key==="PageDown"){ e.preventDefault(); go(idx+1); }
+  if(e.key==="ArrowLeft" ||e.key==="PageUp"){ e.preventDefault(); go(idx-1); }
+  if(e.key==="Home"){ e.preventDefault(); go(0); }
+  if(e.key==="End"){ e.preventDefault(); go(rooms.length-1); }
+});
+prevBtn.addEventListener("click",()=>go(idx-1));
+nextBtn.addEventListener("click",()=>go(idx+1));
+addEventListener("resize",()=>{ go(idx,true); syncChrome(); },{passive:true});
+
+/* ── floor plan ────────────────────────────────────────────────────────── */
+const plan=$("#plan"), planList=$("#plan-list");
+CONFIG.rooms.forEach((r,i)=>{
+  const li=el("li"), b=el("button");
+  b.innerHTML=`<span class="n">${esc(r.numeral||ROMAN[i])}</span><span class="t">${esc(r.title)}</span>`;
+  b.addEventListener("click",()=>{ closePlan(); go(i); });
+  li.append(b); planList.append(li);
+});
+function openPlan(){ plan.classList.add("open"); $("#plan-close").focus(); }
+function closePlan(){ plan.classList.remove("open"); $("#plan-btn").focus(); }
+$("#plan-btn").addEventListener("click",openPlan);
+$("#plan-close").addEventListener("click",closePlan);
+plan.addEventListener("click",e=>{ if(e.target===plan) closePlan(); });
+
+/* ── the label sheet ───────────────────────────────────────────────────── */
+const modal=$("#modal"), sheet=$("#sheet");
+let lastFocus=null;
+function openSheet(ex){
+  lastFocus=document.activeElement;
+  sheet.innerHTML="";
+  const shot=el("div","shot"); shot.append(photo(ex.photo,ex.alt,ex.no));
+  const body=el("div","body");
+  body.append(el("p","acc",esc(ex.no)));
+  const h=el("h3",null,esc(ex.title)); h.id="sheet-title";
+  body.append(h, el("p","story",esc(ex.story)));
+  body.append(labelList([["Date",ex.date],["Medium",ex.medium],["Dimensions",ex.size]]));
+  if(ex.note){
+    const btn=el("button","note-btn","there's a note on the back");
+    const note=el("p","note",esc(ex.note));
+    btn.setAttribute("aria-expanded","false");
+    btn.addEventListener("click",()=>{
+      const on=note.classList.toggle("show");
+      btn.setAttribute("aria-expanded",String(on));
+      btn.textContent = on ? "hide the note" : "there's a note on the back";
+    });
+    body.append(btn,note);
+  }
+  sheet.append(shot,body);
+  modal.classList.add("open");
+  $("#modal-close").focus();
+}
+function closeSheet(){
+  modal.classList.remove("open");
+  if(lastFocus) lastFocus.focus();
+}
+$("#modal-close").addEventListener("click",closeSheet);
+modal.addEventListener("click",e=>{ if(e.target===modal) closeSheet(); });
+addEventListener("keydown",e=>{
+  if(e.key!=="Escape") return;
+  if(modal.classList.contains("open")) closeSheet();
+  else if(plan.classList.contains("open")) closePlan();
+});
+/* keep focus inside whichever dialog is open */
+addEventListener("keydown",e=>{
+  if(e.key!=="Tab") return;
+  const open = modal.classList.contains("open") ? modal : plan.classList.contains("open") ? plan : null;
+  if(!open) return;
+  const f=$$('button,a[href],[tabindex]:not([tabindex="-1"])',open).filter(n=>n.offsetParent!==null);
+  if(!f.length) return;
+  const first=f[0], last=f[f.length-1];
+  if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+});
+
+/* ── the door ──────────────────────────────────────────────────────────── */
+document.title = CONFIG.pageTitle || "The Private Collection";
+$("#d-etch").textContent  = CONFIG.door.etch;
+$("#d-title").innerHTML   = CONFIG.door.title;
+$("#d-sub").textContent   = CONFIG.door.sub;
+$("#d-hold").textContent  = CONFIG.door.hold;
+$("#d-patience").textContent = CONFIG.door.patience;
+$("#nudge").textContent   = CONFIG.nudge;
+
+const door=$("#door"), sw=$("#switch");
+const HOLD=1050;
+let raf=null, t0=0, opened=false;
+
+function tick(now){
+  if(!t0) t0=now;
+  const f=clamp((now-t0)/HOLD,0,1);
+  door.style.setProperty("--fill",f);
+  if(f>=1){ stopHold(); ignite(); return; }
+  raf=requestAnimationFrame(tick);
+}
+function startHold(e){
+  if(opened) return;
+  if(e && e.pointerId!=null && sw.setPointerCapture) { try{ sw.setPointerCapture(e.pointerId); }catch(_){} }
+  if(raf) return;
+  t0=0; raf=requestAnimationFrame(tick);
+}
+function stopHold(){ if(raf){ cancelAnimationFrame(raf); raf=null; t0=0; } }
+function cancelHold(){ stopHold(); if(!opened) door.style.setProperty("--fill",0); }
+
+sw.addEventListener("pointerdown",e=>{ e.preventDefault(); startHold(e); });
+sw.addEventListener("pointerup",cancelHold);
+sw.addEventListener("pointercancel",cancelHold);
+sw.addEventListener("pointerleave",cancelHold);
+sw.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); startHold(); } });
+sw.addEventListener("keyup",e=>{ if(e.key==="Enter"||e.key===" ") cancelHold(); });
+sw.addEventListener("click",e=>e.preventDefault());
+
+const patienceTimer=setTimeout(()=>{ if(!opened) $("#d-patience").classList.add("show"); },14000);
+
+function ignite(){
+  if(opened) return; opened=true;
+  clearTimeout(patienceTimer);
+  door.style.setProperty("--fill",1);
+  door.classList.add("on");
+  $("#bloom").classList.add("fire");
+  setTimeout(()=>{
+    door.classList.add("is-open");
+    gallery.classList.add("lit");
+    $("#hud").classList.add("lit");
+    gallery.focus({preventScroll:true});
+    syncChrome();
+    if(!REDUCED) parallax();
+    const n=$("#nudge");
+    n.classList.add("show");
+    setTimeout(()=>n.classList.remove("show"),6500);
+  }, REDUCED?60:760);
+}
+
+syncChrome();
+</script>
+</body>
+</html>
